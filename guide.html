@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>うまそうカレンダー かんたん説明書（Windowsパソコン版）</title>
+<style>
+  :root {
+    --bg: #f3f8f3;
+    --surface: #ffffff;
+    --surface-sub: #f6fbf6;
+    --border: #d9e6d9;
+    --text: #1f2b22;
+    --text-sub: #4e6152;
+    --accent: #5cb85c;
+    --accent-dark: #3f8f3f;
+    --accent-soft: #eaf7ea;
+    --accent-border: #b6e0b6;
+    --warn-bg: #fff8eb;
+    --warn-bd: #f5cc84;
+    --warn-tx: #8a4f00;
+    --safe-bg: #eef6ff;
+    --safe-bd: #b7d7f7;
+    --safe-tx: #184a7a;
+    --radius: 16px;
+    --shadow: 0 3px 12px rgba(25, 55, 30, 0.07);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "BIZ UDPGothic", "BIZ UDPゴシック", Arial, "Meiryo", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 22px 16px 48px;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #64c464, #449d44);
+    color: #fff;
+    border-radius: 20px;
+    padding: 26px 22px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(68, 157, 68, 0.25);
+    margin-bottom: 18px;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    padding: 3px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .hero-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 10px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    line-height: 1.35;
+  }
+  .hero p {
+    margin: 0;
+    font-size: 15px;
+    opacity: 0.96;
+  }
+
+  /* Section Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 20px 22px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    margin: 0 0 14px;
+    font-size: 18.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent-dark);
+  }
+  .title-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  svg.ico {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Steps */
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface-sub);
+    border: 1px solid #e5efe5;
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-text strong {
+    display: block;
+    font-size: 15.5px;
+    margin-bottom: 2px;
+  }
+  .step-text span {
+    font-size: 14px;
+    color: var(--text-sub);
+  }
+
+  /* Pill highlight */
+  .btn-chip {
+    display: inline-block;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    color: #1f5c21;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 1px 8px;
+    border-radius: 6px;
+    margin: 0 2px;
+  }
+  .key-chip {
+    display: inline-block;
+    background: #eef2ee;
+    border: 1px solid #c3d0c3;
+    border-bottom-width: 2px;
+    color: #2b382d;
+    font-family: Arial, "BIZ UDPGothic", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 1px 7px;
+    border-radius: 5px;
+    margin: 0 2px;
+  }
+
+  /* Feature Grid */
+  .mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .mini-box {
+    background: var(--surface-sub);
+    border: 1px solid #e3eee3;
+    border-radius: 12px;
+    padding: 13px 14px;
+  }
+  .mini-box strong {
+    display: block;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .mini-box p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--text-sub);
+    line-height: 1.55;
+  }
+
+  /* Callout Boxes */
+  .notice {
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  .notice.warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-bd);
+    color: var(--warn-tx);
+  }
+  .notice strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 14.5px;
+  }
+
+  /* Safety List */
+  .rule-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rule-list li {
+    background: #f8fbff;
+    border: 1px solid #d5e6f8;
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .rule-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 700;
+    font-size: 15px;
+    color: #164875;
+    margin-bottom: 4px;
+  }
+  .rule-body {
+    font-size: 14px;
+    color: #364e66;
+    margin: 0;
+  }
+
+  .tag-ok {
+    background: #dff3df;
+    color: #1d6320;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .tag-care {
+    background: #ffe9c7;
+    color: #965200;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 12.5px;
+    color: #6b7d6f;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 560px) {
+    .mini-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-badge">Windowsパソコン版 かんたんガイド</div>
+    <div class="hero-icon" aria-hidden="true">
+      <svg class="ico" style="width:28px;height:28px;" viewBox="0 0 24 24">
+        <path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M16 3v18M16 3c3 0 4 2.5 4 6s-1 5-4 5"/>
+      </svg>
+    </div>
+    <h1>うまそうカレンダー つかいかた</h1>
+    <p>おいしかった ランチや おやつを、しゃしんといっしょに パソコンのカレンダーへ のこせる アプリだよ！</p>
+  </header>
+
+  <!-- 1. はじめかた -->
+  <section class="card">
+    <h2 class="card-title">
+      <span class="title-icon">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </span>
+      1. アプリの ひらきかた
+    </h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <div class="step-text">
+          <strong>HTMLファイルを ダブルクリック！</strong>
+          <span><strong>umasou_calendar_pc.html</strong> をダブルクリックすると、Edge（エッジ）や Chrome（クローム）で すぐひらくよ。</span>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div class="step-text">
+          <strong>つづきから ひらくとき・はじめてのとき</strong>
+          <span>
+            ・はじめてのとき：<span class="btn-chip">新しく記録を始める</span> か <span class="btn-chip">サンプルデータで試す</span> をおそう。<br>
+            ・つづきからひらくとき：しまっておいた <strong>「うまそうファイル.json」</strong> を画面に ドラッグ＆ドロップするか、<span class="btn-chip">開く</span> ボタンから えらんでね。
+          </span>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 2. たべたものをきろくする -->
+  <section class="card">
+    <h2 class="card-title">
+      <span class="title-icon">
+        <svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </span>
+      2. たべたものを きろくしよう
+    </h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <div class="step-text">
+          <strong>日付をクリック または <span class="btn-chip">記録を追加</span> をクリック</strong>
+          <span>カレンダーの あいている場所をクリックすると、その日の きろく画面が ひらくよ。</span>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div class="step-text">
+          <strong>たべたものと しゃしんを いれる</strong>
+          <span>「ランチ」「おやつ」をえらんで、メニュー・おみせ・おかね・星（★）をいれよう。しゃしんは ドラッグ＆ドロップか <span class="btn-chip">写真を選択</span>、コピーした画像を <span class="key-chip">Ctrl</span>＋<span class="key-chip">V</span> で はりつけることも できるよ！</span>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <div class="step-text">
+          <strong><span class="btn-chip">この内容で保存</span> をクリック！</strong>
+          <span>カレンダーに 色のついたカードが ふえるよ。</span>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 3. みかえす・しらべる -->
+  <section class="card">
+    <h2 class="card-title">
+      <span class="title-icon">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      3. おおきく見る・しらべる
+    </h2>
+    <div class="mini-grid">
+      <div class="mini-box">
+        <strong>マウスをのせると 拡大！</strong>
+        <p>きろくした たべものに マウスカーソルを あわせるだけで、しゃしんや メモが ふわっと おおきく ひらくよ。</p>
+      </div>
+      <div class="mini-box">
+        <strong>おみせを すぐ しらべる</strong>
+        <p>おおきくひらいた カードの <span class="btn-chip">Googleで検索</span> や <span class="btn-chip">マップで探す</span> から、おみせを さがせるよ。</p>
+      </div>
+      <div class="mini-box">
+        <strong>ワンタッチで 表示きりかえ</strong>
+        <p>うえの <span class="btn-chip">月間</span> <span class="btn-chip">週間</span> <span class="btn-chip">一覧・集計</span> ボタンで、見やすい形に すぐかえられるよ。</p>
+      </div>
+      <div class="mini-box">
+        <strong>クリックで 編集・コピー</strong>
+        <p>たべものを クリックすると なおせるよ。おなじメニューを また食べたときは <span class="btn-chip">別日に複製</span> がべんり！</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. ほぞん と けしかた -->
+  <section class="card">
+    <h2 class="card-title">
+      <span class="title-icon">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      </span>
+      4. おわるときは かならず「保存」！
+    </h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <div class="step-text">
+          <strong><span class="btn-chip">保存</span>（または <span class="key-chip">Ctrl</span>＋<span class="key-chip">S</span>）をおそう</strong>
+          <span>きろくを <strong>「うまそうファイル.json」</strong> として デスクトップなどの 好きなフォルダに ほぞんするよ。うえに「未保存」と でているときは、とじるまえに わすれずに ほぞんしてね。</span>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div class="step-text">
+          <strong>いらなくなったら ファイルを 消すだけ！</strong>
+          <span><strong>「うまそうファイル.json」</strong> をゴミ箱に 捨てて空にすれば、しゃしんも きろくも ぜんぶ きれいに 消えるよ。ブラウザのなかには なんにも のこらないよ。</span>
+        </div>
+      </li>
+    </ol>
+    <div class="notice warn">
+      <strong>たいせつな ポイント！</strong>
+      パソコン版は、ブラウザを とじると ほぞんしていない きろくが ぜんぶ 消えるしくみだよ。おわるときは かならず <span class="btn-chip">保存</span> をおしてから とじてね（わすれそうなときは 確認のメッセージが でるよ）。
+    </div>
+  </section>
+
+  <!-- 5. あんぜんのやくそく -->
+  <section class="card">
+    <h2 class="card-title" style="color:#164875;">
+      <span class="title-icon" style="background:#e6f1fc;color:#164875;">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </span>
+      5. あんぜんの やくそく（じょうほうもれに きをつけよう）
+    </h2>
+    <ul class="rule-list">
+      <li>
+        <div class="rule-head">
+          <span class="tag-ok">あんしん</span>
+          かってに ネットへ おくらないよ
+        </div>
+        <p class="rule-body">ふだんは パソコンの なかだけで うごきます。しゃしんや メモ、おかねの きろくが かってに ほかの人のところへ おくられることは ありません。</p>
+      </li>
+      <li>
+        <div class="rule-head">
+          <span class="tag-care">ちゅうい</span>
+          「しらべるボタン」を おしたときだけ ネットにつながるよ
+        </div>
+        <p class="rule-body"><span class="btn-chip">Googleで検索</span> や <span class="btn-chip">マップで探す</span> を おしたときだけ、<strong>「おみせの名前」と「たべものの名前」</strong>を使って ネット検索をひらきます（しゃしんや メモは おくられません）。おうちや 学校の じゅうしょなど、ひみつの ことは 書かないようにしよう。</p>
+      </li>
+      <li>
+        <div class="rule-head">
+          <span class="tag-care">ちゅうい</span>
+          「うまそうファイル.json」は 自分のフォルダに しまおう
+        </div>
+        <p class="rule-body">ほぞんした <strong>「うまそうファイル.json」</strong> には、かぎ（パスワード）がかかっていません。みんなが使う パソコンの デスクトップや 共有フォルダに おきっぱなしにすると、ほかの人にも しゃしんや メモが 見えちゃうよ。自分のフォルダに しまうか、つかいおわったら 消すようにしよう。</p>
+      </li>
+    </ul>
+  </section>
+
+  <footer>
+    うまそうカレンダー（Windowsパソコン版）かんたん説明書
+  </footer>
+
+</div>
+</body>
+</html>

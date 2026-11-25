@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="うまそうカレンダー">
+<meta name="theme-color" content="#5cb85c">
+<title>うまそうカレンダー</title>
+<style>
+  :root {
+    --bg: #f3f7f3;
+    --surface: #ffffff;
+    --surface-sub: #f7faf7;
+    --border: #dde6dd;
+    --border-strong: #c1d1c2;
+    --text: #1c271f;
+    --text-sub: #56675a;
+    --text-muted: #7f9083;
+    --accent: #5cb85c;
+    --accent-dark: #439b43;
+    --accent-soft: #eaf6ea;
+    --accent-border: #b6dfb6;
+    --danger: #d9534f;
+    --danger-soft: #fdeeee;
+    --shadow-sm: 0 1px 4px rgba(18, 40, 22, 0.06);
+    --shadow-md: 0 6px 20px rgba(18, 40, 22, 0.12);
+    --shadow-lg: 0 12px 36px rgba(15, 35, 20, 0.22);
+    --radius: 12px;
+    --radius-sm: 8px;
+
+    /* Category Colors */
+    --cat-lunch-bg: #e8f5e9; --cat-lunch-bd: #81c784; --cat-lunch-tx: #1b5e20; --cat-lunch-dot: #43a047;
+    --cat-snack-bg: #fff3e0; --cat-snack-bd: #ffb74d; --cat-snack-tx: #e65100; --cat-snack-dot: #fb8c00;
+    --cat-breakfast-bg: #e3f2fd; --cat-breakfast-bd: #64b5f6; --cat-breakfast-tx: #0d47a1; --cat-breakfast-dot: #1e88e5;
+    --cat-dinner-bg: #f3e5f5; --cat-dinner-bd: #ba68c8; --cat-dinner-tx: #4a148c; --cat-dinner-dot: #8e24aa;
+    --cat-other-bg: #eceff1; --cat-other-bd: #90a4ae; --cat-other-tx: #37474f; --cat-other-dot: #546e7a;
+
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --nav-height: 62px;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "BIZ UDPGothic", "BIZ UDPゴシック", -apple-system, BlinkMacSystemFont, "Hiragino Sans", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-family: Arial, -apple-system, "BIZ UDPGothic", sans-serif;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    touch-action: manipulation;
+    transition: background-color 0.14s, transform 0.08s;
+  }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.45; transform: none; }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent-dark);
+    color: #fff;
+    font-weight: 700;
+  }
+  .btn-soft {
+    background: var(--accent-soft);
+    border-color: var(--accent-border);
+    color: #215b23;
+    font-weight: 700;
+  }
+  .btn-danger {
+    background: var(--danger-soft);
+    border-color: #efb7b5;
+    color: var(--danger);
+    font-weight: 700;
+  }
+  .btn-block { width: 100%; padding: 12px 16px; font-size: 15px; }
+
+  svg.ico {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Top Header */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding-top: var(--safe-top);
+  }
+  .header-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #68c968, #439b43);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-title {
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .header-today-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 999px;
+  }
+  .header-add-btn {
+    padding: 6px 12px;
+    font-size: 13.5px;
+    border-radius: 999px;
+  }
+
+  /* Main Scroll Area */
+  .main-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 12px 12px calc(var(--nav-height) + var(--safe-bottom) + 22px);
+  }
+
+  /* Period Bar */
+  .period-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .period-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .period-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .period-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .period-summary {
+    font-size: 12.5px;
+    color: var(--text-sub);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+  .period-summary strong { color: var(--text); }
+
+  /* Horizontal Category Pills */
+  .cat-scroll {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 0 10px;
+    scrollbar-width: none;
+  }
+  .cat-scroll::-webkit-scrollbar { display: none; }
+  .cat-pill {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-sub);
+  }
+  .cat-pill.active {
+    background: var(--accent);
+    border-color: var(--accent-dark);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* Month Calendar Card (Mobile Optimized) */
+  .cal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 14px;
+  }
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    background: var(--surface-sub);
+    border-bottom: 1px solid var(--border);
+  }
+  .cal-wd {
+    text-align: center;
+    padding: 6px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-sub);
+  }
+  .cal-wd.sun { color: #c0392b; }
+  .cal-wd.sat { color: #2471a3; }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+  .cal-day {
+    min-height: 54px;
+    padding: 5px 2px 4px;
+    border-right: 1px solid #eef3ee;
+    border-bottom: 1px solid #eef3ee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.12s;
+  }
+  .cal-day:nth-child(7n) { border-right: none; }
+  .cal-day.other { opacity: 0.36; background: #fafcfa; }
+  .cal-day.selected { background: var(--accent-soft); }
+  .cal-day.selected::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  .cal-day-num {
+    font-size: 13.5px;
+    font-weight: 700;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cal-day-num.sun { color: #c0392b; }
+  .cal-day-num.sat { color: #2471a3; }
+  .cal-day.today .cal-day-num {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .cal-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex-wrap: wrap;
+    max-width: 34px;
+    min-height: 8px;
+  }
+  .cal-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .cal-day-price {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    line-height: 1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Selected Day Section */
+  .day-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 2px 10px;
+    gap: 8px;
+  }
+  .day-section-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .day-section-sub {
+    font-size: 12.5px;
+    color: var(--text-sub);
+    margin-left: 6px;
+    font-weight: 400;
+  }
+
+  /* Meal Card (Touch-friendly) */
+  .meal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .meal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: transform 0.1s, border-color 0.12s;
+  }
+  .meal-card:active { transform: scale(0.985); border-color: var(--accent); }
+
+  .meal-thumb {
+    width: 78px;
+    height: 78px;
+    border-radius: 9px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #eef3ee;
+    border: 1px solid var(--border);
+    display: block;
+  }
+  .meal-thumb-placeholder {
+    width: 78px;
+    height: 78px;
+    border-radius: 9px;
+    flex-shrink: 0;
+    background: var(--surface-sub);
+    border: 1px dashed var(--border-strong);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 10px;
+    gap: 3px;
+  }
+
+  .meal-card-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .meal-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .cat-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .cat-lunch { background: var(--cat-lunch-bg); border-color: var(--cat-lunch-bd); color: var(--cat-lunch-tx); }
+  .cat-snack { background: var(--cat-snack-bg); border-color: var(--cat-snack-bd); color: var(--cat-snack-tx); }
+  .cat-breakfast { background: var(--cat-breakfast-bg); border-color: var(--cat-breakfast-bd); color: var(--cat-breakfast-tx); }
+  .cat-dinner { background: var(--cat-dinner-bg); border-color: var(--cat-dinner-bd); color: var(--cat-dinner-tx); }
+  .cat-other { background: var(--cat-other-bg); border-color: var(--cat-other-bd); color: var(--cat-other-tx); }
+
+  .meal-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .meal-name {
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+  .meal-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--text-sub);
+  }
+  .meal-shop {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .stars { color: #f39c12; letter-spacing: 0.03em; flex-shrink: 0; }
+  .meal-memo-preview {
+    font-size: 12px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .empty-card {
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 26px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .empty-card button { margin-top: 12px; }
+
+  /* Week Strip & Day Groups */
+  .week-strip {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+  .week-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+  }
+  .week-pill.today { border-color: var(--accent); background: var(--accent-soft); }
+  .week-pill-dow { font-size: 11px; font-weight: 700; color: var(--text-sub); }
+  .week-pill-dow.sun { color: #c0392b; }
+  .week-pill-dow.sat { color: #2471a3; }
+  .week-pill-num { font-size: 15px; font-weight: 700; }
+  .week-day-group { margin-bottom: 14px; }
+  .week-day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 4px 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-sub);
+  }
+  .week-day-header.today { color: var(--accent-dark); }
+
+  /* List & Summary */
+  .search-box {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-box svg.ico {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .search-box input {
+    width: 100%;
+    font-size: 16px;
+    padding: 10px 36px 10px 38px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+  }
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(92, 184, 92, 0.16);
+  }
+  .search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    font-size: 16px;
+    color: var(--text-muted);
+    display: none;
+  }
+  .search-clear.show { display: inline-flex; }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background: #e6eee6;
+    border-radius: 9px;
+    padding: 3px;
+    margin-bottom: 12px;
+  }
+  .segmented button {
+    border: none;
+    background: transparent;
+    padding: 7px;
+    font-size: 13.5px;
+    color: var(--text-sub);
+    border-radius: 7px;
+  }
+  .segmented button.active {
+    background: var(--surface);
+    color: var(--accent-dark);
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .kpi-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .kpi-label { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; }
+  .kpi-val { font-size: 17px; font-weight: 700; text-align: right; }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-sub);
+  }
+  .legend-item { display: inline-flex; align-items: center; gap: 5px; }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* Data Management View */
+  .data-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .data-card h2 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .data-card p {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eef3ee;
+    font-size: 13.5px;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .btn-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .storage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: #215b23;
+  }
+  .storage-badge.warn {
+    background: #fff3e0;
+    color: #b75b00;
+  }
+
+  /* Bottom Tab Navigation */
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding-bottom: var(--safe-bottom);
+  }
+  .bottom-nav-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    height: var(--nav-height);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .nav-tab {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 6px 4px;
+  }
+  .nav-tab svg.ico { width: 21px; height: 21px; }
+  .nav-tab.active {
+    color: var(--accent-dark);
+    font-weight: 700;
+  }
+
+  /* Detail Zoom Sheet (Mobile Replacement for Hover Preview) */
+  .sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(15, 28, 18, 0.52);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .sheet-backdrop.open { display: flex; }
+
+  .detail-sheet {
+    width: 100%;
+    max-width: 560px;
+    max-height: 90dvh;
+    background: var(--surface);
+    border-radius: 18px 18px 0 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.18s ease-out;
+    padding-bottom: var(--safe-bottom);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(36px); opacity: 0.7; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .detail-img-wrap {
+    width: 100%;
+    height: 240px;
+    background: #eef3ee;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .detail-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .detail-close-float {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: rgba(20, 32, 22, 0.62);
+    color: #fff;
+    font-size: 16px;
+  }
+  .detail-cat-float {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  }
+  .detail-price-float {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(20, 32, 22, 0.8);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .detail-body {
+    padding: 16px 18px 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .detail-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+  .detail-food {
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .detail-shop {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--text-sub);
+  }
+  .detail-memo {
+    background: var(--surface-sub);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .detail-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 2px;
+  }
+  .detail-link-btn {
+    flex: 1 1 auto;
+    min-width: 125px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid var(--accent-border);
+    background: var(--accent-soft);
+    color: #215b23;
+  }
+  .detail-link-btn.secondary {
+    background: #eef4fa;
+    border-color: #c6dcf2;
+    color: #1f4e79;
+  }
+  .detail-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .detail-actions button { padding: 11px; font-size: 14.5px; }
+
+  /* Edit Modal (Full-screen friendly on iPhone) */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(15, 28, 18, 0.52);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+
+  .modal-dialog {
+    width: 100%;
+    max-width: 580px;
+    max-height: 94dvh;
+    background: var(--surface);
+    border-radius: 18px 18px 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.18s ease-out;
+  }
+  .modal-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-sub);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title { margin: 0; font-size: 16.5px; font-weight: 700; }
+  .modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  .modal-footer {
+    padding: 12px 16px calc(12px + var(--safe-bottom));
+    border-top: 1px solid var(--border);
+    background: var(--surface-sub);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .modal-footer-row {
+    display: flex;
+    gap: 8px;
+  }
+  .modal-footer-row button { flex: 1; padding: 11px; font-size: 15px; }
+
+  .form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .form-label { font-size: 13px; font-weight: 700; color: var(--text-sub); }
+  .req { color: var(--danger); margin-left: 3px; }
+  .form-control {
+    width: 100%;
+    font-size: 16px; /* Prevents iOS Safari auto-zoom on focus */
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    -webkit-appearance: none;
+  }
+  .form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(92, 184, 92, 0.18);
+  }
+  textarea.form-control { min-height: 76px; resize: vertical; }
+  select.form-control {
+    padding-right: 34px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2356675a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+  }
+  .shop-input-stack { display: flex; flex-direction: column; gap: 8px; }
+
+  .star-picker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .star-btn {
+    flex: 1;
+    font-size: 20px;
+    padding: 6px 0;
+    color: #ccc;
+    border-color: var(--border);
+  }
+  .star-btn.active { color: #f39c12; border-color: #f8d48b; background: #fffbf0; }
+  .star-clear { font-size: 12px; padding: 8px 10px; color: var(--text-sub); }
+
+  .photo-box {
+    border: 1px dashed var(--border-strong);
+    border-radius: 10px;
+    padding: 12px;
+    background: var(--surface-sub);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .photo-preview {
+    width: 96px;
+    height: 76px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #eaf0ea;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .photo-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-actions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-sub);
+  }
+  .photo-btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Toast */
+  .toast-stack {
+    position: fixed;
+    left: 50%;
+    bottom: calc(var(--nav-height) + var(--safe-bottom) + 14px);
+    transform: translateX(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+    width: calc(100% - 28px);
+    max-width: 400px;
+  }
+  .toast {
+    background: rgba(28, 42, 31, 0.92);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: #2e7d32; }
+  .toast.error { background: #a93226; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg class="ico" style="width:19px;height:19px;" viewBox="0 0 24 24">
+          <path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M16 3v18M16 3c3 0 4 2.5 4 6s-1 5-4 5"/>
+        </svg>
+      </div>
+      <span class="brand-title">うまそうカレンダー</span>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="header-today-btn" id="btnHeaderToday">今日</button>
+      <button type="button" class="btn-primary header-add-btn" id="btnHeaderAdd">
+        <svg class="ico" style="width:15px;height:15px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        記録
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="main-container" id="mainContainer"></main>
+
+<nav class="bottom-nav" aria-label="メインメニュー">
+  <div class="bottom-nav-inner">
+    <button type="button" class="nav-tab active" data-tab="month">
+      <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>月間</span>
+    </button>
+    <button type="button" class="nav-tab" data-tab="week">
+      <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="22"/><line x1="15" y1="10" x2="15" y2="22"/></svg>
+      <span>週間</span>
+    </button>
+    <button type="button" class="nav-tab" data-tab="list">
+      <svg class="ico" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span>一覧・集計</span>
+    </button>
+    <button type="button" class="nav-tab" data-tab="data">
+      <svg class="ico" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      <span>データ管理</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Tap Detail Zoom Sheet -->
+<div class="sheet-backdrop" id="detailBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="detail-sheet">
+    <div class="detail-img-wrap" id="detailImgWrap"></div>
+    <div class="detail-body">
+      <div class="detail-meta-row">
+        <span class="num" id="detailDate"></span>
+        <span class="stars" id="detailStars"></span>
+      </div>
+      <div class="detail-food" id="detailFood"></div>
+      <div class="detail-shop" id="detailShopRow">
+        <svg class="ico" style="width:15px;height:15px;" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span id="detailShop"></span>
+      </div>
+      <div class="detail-memo" id="detailMemo"></div>
+      <div class="detail-links" id="detailLinks"></div>
+      <div class="detail-actions">
+        <button type="button" id="btnDetailDup">別日に複製</button>
+        <button type="button" class="btn-soft" id="btnDetailEdit">編集する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create / Edit Modal -->
+<div class="modal-backdrop" id="recordModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">食事を記録</h2>
+      <button type="button" id="btnModalClose" style="padding:5px 10px;" aria-label="閉じる">✕</button>
+    </div>
+    <form id="recordForm" novalidate style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
+      <div class="modal-body">
+        <input type="hidden" id="recId">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="recDate">日付<span class="req">*</span></label>
+            <input type="date" class="form-control num" id="recDate" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recCategory">区分<span class="req">*</span></label>
+            <select class="form-control" id="recCategory" required>
+              <option value="lunch">ランチ</option>
+              <option value="snack">おやつ</option>
+              <option value="breakfast">朝食</option>
+              <option value="dinner">夕食</option>
+              <option value="other">その他</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="recFoodName">食べたもの・メニュー名<span class="req">*</span></label>
+          <input type="text" class="form-control" id="recFoodName" placeholder="例：特製醤油ラーメン、苺ショートケーキ" required maxlength="120">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="recShopPreset">お店・購入場所</label>
+          <div class="shop-input-stack">
+            <select class="form-control" id="recShopPreset" aria-label="よく行くお店から選ぶ">
+              <option value="">-- お店を選ぶ（自由入力も可） --</option>
+              <option value="スタバ">スタバ</option>
+              <option value="シアトルズベスト">シアトルズベスト</option>
+              <option value="タリーズ">タリーズ</option>
+              <option value="ドトール">ドトール</option>
+            </select>
+            <input type="text" class="form-control" id="recShopName" placeholder="自由入力（例：麺処 〇〇）" maxlength="120">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="recPrice">金額（円）</label>
+          <input type="number" inputmode="numeric" class="form-control num" id="recPrice" placeholder="980" min="0" max="9999999" step="1">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">満足度</label>
+          <div class="star-picker" id="starPicker">
+            <button type="button" class="star-btn" data-val="1">★</button>
+            <button type="button" class="star-btn" data-val="2">★</button>
+            <button type="button" class="star-btn" data-val="3">★</button>
+            <button type="button" class="star-btn" data-val="4">★</button>
+            <button type="button" class="star-btn" data-val="5">★</button>
+            <button type="button" class="star-clear" id="btnStarClear">なし</button>
+          </div>
+          <input type="hidden" id="recRating" value="">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">写真（カメラ撮影 / 写真ライブラリ）</label>
+          <div class="photo-box">
+            <div class="photo-preview" id="photoPreview">写真なし</div>
+            <div class="photo-actions">
+              <div id="photoSizeInfo">長辺640pxへ自動圧縮して保存します。</div>
+              <div class="photo-btn-row">
+                <button type="button" class="btn-soft" id="btnSelectPhoto">写真を選ぶ / 撮る</button>
+                <button type="button" class="btn-danger" id="btnRemovePhoto" style="display:none;">削除</button>
+              </div>
+            </div>
+          </div>
+          <input type="file" id="photoFileInput" accept="image/*" hidden>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="recMemo">メモ・感想</label>
+          <textarea class="form-control" id="recMemo" placeholder="味の感想、ボリュームなど"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="recUrl">関連WebサイトURL（任意）</label>
+          <input type="url" class="form-control" id="recUrl" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-footer-row">
+          <button type="button" id="btnModalCancel">キャンセル</button>
+          <button type="submit" class="btn-primary">保存する</button>
+        </div>
+        <div class="modal-footer-row" id="editExtraRow" style="display:none;">
+          <button type="button" class="btn-danger" id="btnDeleteRecord">この記録を削除</button>
+          <button type="button" id="btnDuplicateRecord">別日に複製</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<input type="file" id="jsonFileInput" accept=".json,application/json" hidden>
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =========================================================
+     Constants
+  ========================================================= */
+  const CATEGORIES = {
+    lunch:     { label: 'ランチ', color: '#43a047', cls: 'cat-lunch' },
+    snack:     { label: 'おやつ', color: '#fb8c00', cls: 'cat-snack' },
+    breakfast: { label: '朝食',   color: '#1e88e5', cls: 'cat-breakfast' },
+    dinner:    { label: '夕食',   color: '#8e24aa', cls: 'cat-dinner' },
+    other:     { label: 'その他', color: '#546e7a', cls: 'cat-other' }
+  };
+  const DOW_JP = ['日', '月', '火', '水', '木', '金', '土'];
+  const SHOP_PRESETS = ['スタバ', 'シアトルズベスト', 'タリーズ', 'ドトール'];
+
+  const DB_NAME = 'UmasouCalendarDB';
+  const DB_VERSION = 1;
+  const STORE_NAME = 'kv';
+  const RECORDS_KEY = 'meal_records_v1';
+
+  /* =========================================================
+     IndexedDB Storage Wrapper (With Safe In-Memory Fallback)
+  ========================================================= */
+  let dbInstance = null;
+  let storageAvailable = false;
+
+  function openDb() {
+    return new Promise(resolve => {
+      if (!('indexedDB' in window)) { resolve(null); return; }
+      try {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+        req.onsuccess = () => {
+          storageAvailable = true;
+          resolve(req.result);
+        };
+        req.onerror = () => resolve(null);
+      } catch {
+        resolve(null);
+      }
+    });
+  }
+
+  function dbGet(key) {
+    return new Promise(resolve => {
+      if (!dbInstance) { resolve(null); return; }
+      try {
+        const tx = dbInstance.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).get(key);
+        req.onsuccess = () => resolve(req.result ?? null);
+        req.onerror = () => resolve(null);
+      } catch { resolve(null); }
+    });
+  }
+
+  function dbSet(key, val) {
+    return new Promise(resolve => {
+      if (!dbInstance) { resolve(false); return; }
+      try {
+        const tx = dbInstance.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(val, key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+      } catch { resolve(false); }
+    });
+  }
+
+  function dbClearAll() {
+    return new Promise(resolve => {
+      if (!dbInstance) { resolve(true); return; }
+      try {
+        const tx = dbInstance.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).clear();
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+      } catch { resolve(false); }
+    });
+  }
+
+  /* =========================================================
+     Application State
+  ========================================================= */
+  const today = new Date();
+  const todayKey = formatDateKey(today);
+
+  const state = {
+    tab: 'month',               // 'month' | 'week' | 'list' | 'data'
+    records: [],
+    cursorDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+    selectedDate: todayKey,
+    weekStartsOnMonday: true,
+    filterCategory: 'all',
+    searchQuery: '',
+    listScope: 'period',        // 'period' | 'all'
+    detailRecordId: null,
+    modalImageData: ''
+  };
+
+  /* =========================================================
+     DOM Cache
+  ========================================================= */
+  const el = {
+    main: document.getElementById('mainContainer'),
+    toastStack: document.getElementById('toastStack'),
+    jsonFileInput: document.getElementById('jsonFileInput'),
+
+    // Detail Sheet
+    detailBackdrop: document.getElementById('detailBackdrop'),
+    detailImgWrap: document.getElementById('detailImgWrap'),
+    detailDate: document.getElementById('detailDate'),
+    detailStars: document.getElementById('detailStars'),
+    detailFood: document.getElementById('detailFood'),
+    detailShopRow: document.getElementById('detailShopRow'),
+    detailShop: document.getElementById('detailShop'),
+    detailMemo: document.getElementById('detailMemo'),
+    detailLinks: document.getElementById('detailLinks'),
+    btnDetailEdit: document.getElementById('btnDetailEdit'),
+    btnDetailDup: document.getElementById('btnDetailDup'),
+
+    // Modal
+    modal: document.getElementById('recordModal'),
+    modalTitle: document.getElementById('modalTitle'),
+    form: document.getElementById('recordForm'),
+    recId: document.getElementById('recId'),
+    recDate: document.getElementById('recDate'),
+    recCategory: document.getElementById('recCategory'),
+    recFoodName: document.getElementById('recFoodName'),
+    recShopPreset: document.getElementById('recShopPreset'),
+    recShopName: document.getElementById('recShopName'),
+    recPrice: document.getElementById('recPrice'),
+    recRating: document.getElementById('recRating'),
+    recUrl: document.getElementById('recUrl'),
+    recMemo: document.getElementById('recMemo'),
+    starPicker: document.getElementById('starPicker'),
+    photoPreview: document.getElementById('photoPreview'),
+    photoSizeInfo: document.getElementById('photoSizeInfo'),
+    photoFileInput: document.getElementById('photoFileInput'),
+    btnSelectPhoto: document.getElementById('btnSelectPhoto'),
+    btnRemovePhoto: document.getElementById('btnRemovePhoto'),
+    editExtraRow: document.getElementById('editExtraRow'),
+    btnDeleteRecord: document.getElementById('btnDeleteRecord'),
+    btnDuplicateRecord: document.getElementById('btnDuplicateRecord')
+  };
+
+  /* =========================================================
+     Utilities
+  ========================================================= */
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function sanitizeUrl(url) {
+    const s = String(url ?? '').trim();
+    return /^https?:\/\/[^\s]+$/i.test(s) ? s : '';
+  }
+
+  function sanitizeImageData(data) {
+    const s = String(data ?? '').trim();
+    return /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(s) ? s : '';
+  }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function formatDateKey(d) {
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  }
+
+  function parseDateKey(key) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(key ?? ''));
+    if (!m) return null;
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+
+  function formatDateJP(key) {
+    const d = parseDateKey(key);
+    if (!d) return key || '';
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${DOW_JP[d.getDay()]}）`;
+  }
+
+  function formatShortDateJP(key) {
+    const d = parseDateKey(key);
+    if (!d) return key || '';
+    return `${d.getMonth() + 1}月${d.getDate()}日（${DOW_JP[d.getDay()]}）`;
+  }
+
+  function formatYen(val) {
+    if (val === null || val === undefined || val === '' || Number.isNaN(Number(val))) return '';
+    return '¥' + Math.round(Number(val)).toLocaleString('ja-JP');
+  }
+
+  function formatStars(rating) {
+    const r = Number(rating);
+    if (!r || r < 1) return '';
+    const c = Math.min(5, Math.max(1, Math.round(r)));
+    return '★'.repeat(c) + '☆'.repeat(5 - c);
+  }
+
+  function generateId() {
+    return 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  }
+
+  function nowIsoLocal() {
+    const d = new Date();
+    const tz = -d.getTimezoneOffset();
+    const sign = tz >= 0 ? '+' : '-';
+    const hh = pad2(Math.floor(Math.abs(tz) / 60));
+    const mm = pad2(Math.abs(tz) % 60);
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}${sign}${hh}:${mm}`;
+  }
+
+  function showToast(msg, type = 'info') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    el.toastStack.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 220);
+    }, 2800);
+  }
+
+  async function persistRecords() {
+    if (storageAvailable) {
+      await dbSet(RECORDS_KEY, state.records);
+    }
+  }
+
+  function getWeekStart(date) {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const day = d.getDay();
+    const diff = state.weekStartsOnMonday ? (day === 0 ? -6 : 1 - day) : -day;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+
+  function getFilteredRecords(applySearch = false) {
+    const q = applySearch ? state.searchQuery.trim().toLowerCase() : '';
+    return state.records.filter(r => {
+      if (state.filterCategory !== 'all' && r.category !== state.filterCategory) return false;
+      if (q) {
+        const hay = `${r.foodName || ''} ${r.shopName || ''} ${r.memo || ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  /* =========================================================
+     Shared UI Builders
+  ========================================================= */
+  function buildCatPillsHtml() {
+    const items = [
+      { key: 'all', label: 'すべて' },
+      { key: 'lunch', label: 'ランチ' },
+      { key: 'snack', label: 'おやつ' },
+      { key: 'breakfast', label: '朝食' },
+      { key: 'dinner', label: '夕食' },
+      { key: 'other', label: 'その他' }
+    ];
+    return `
+      <div class="cat-scroll">
+        ${items.map(it => `<button type="button" class="cat-pill ${state.filterCategory === it.key ? 'active' : ''}" data-cat="${it.key}">${it.label}</button>`).join('')}
+      </div>
+    `;
+  }
+
+  function buildMealCardHtml(r, showDate = false) {
+    const cat = CATEGORIES[r.category] || CATEGORIES.other;
+    const thumb = r.imageData
+      ? `<img class="meal-thumb" src="${r.imageData}" alt="${escapeHtml(r.foodName)}" loading="lazy">`
+      : `<div class="meal-thumb-placeholder">
+           <svg class="ico" style="width:22px;height:22px;opacity:0.5;" viewBox="0 0 24 24"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M16 3v18M16 3c3 0 4 2.5 4 6s-1 5-4 5"/></svg>
+           <span>写真なし</span>
+         </div>`;
+    const priceStr = formatYen(r.price);
+    const stars = formatStars(r.rating);
+    return `
+      <article class="meal-card" data-record-id="${escapeHtml(r.id)}">
+        ${thumb}
+        <div class="meal-card-content">
+          <div class="meal-card-top">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="cat-tag ${cat.cls}">${cat.label}</span>
+              ${showDate ? `<span class="num" style="font-size:12px;color:var(--text-sub);">${escapeHtml(formatShortDateJP(r.date))}</span>` : ''}
+            </div>
+            ${priceStr ? `<span class="meal-price num">${escapeHtml(priceStr)}</span>` : ''}
+          </div>
+          <div class="meal-name">${escapeHtml(r.foodName)}</div>
+          <div class="meal-meta">
+            <span class="meal-shop">${escapeHtml(r.shopName || '')}</span>
+            ${stars ? `<span class="stars">${stars}</span>` : ''}
+          </div>
+          ${r.memo ? `<div class="meal-memo-preview">${escapeHtml(r.memo)}</div>` : ''}
+        </div>
+      </article>
+    `;
+  }
+
+  function bindCommonEvents() {
+    el.main.querySelectorAll('[data-cat]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.filterCategory = btn.dataset.cat;
+        render();
+      });
+    });
+    el.main.querySelectorAll('[data-record-id]').forEach(card => {
+      card.addEventListener('click', () => openDetailSheet(card.dataset.recordId));
+    });
+    el.main.querySelectorAll('[data-add-date]').forEach(btn => {
+      btn.addEventListener('click', () => openRecordModal(null, btn.dataset.addDate));
+    });
+  }
+
+  /* =========================================================
+     Rendering Views
+  ========================================================= */
+  function render() {
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === state.tab);
+    });
+
+    if (state.tab === 'month') renderMonthView();
+    else if (state.tab === 'week') renderWeekView();
+    else if (state.tab === 'list') renderListView();
+    else renderDataView();
+  }
+
+  function renderMonthView() {
+    const y = state.cursorDate.getFullYear();
+    const m = state.cursorDate.getMonth();
+    const first = new Date(y, m, 1);
+    const last = new Date(y, m + 1, 0);
+    const startKey = formatDateKey(first);
+    const endKey = formatDateKey(last);
+
+    const filtered = getFilteredRecords(false);
+    const byDate = new Map();
+    let monthCount = 0;
+    let monthSum = 0;
+    for (const r of filtered) {
+      if (!byDate.has(r.date)) byDate.set(r.date, []);
+      byDate.get(r.date).push(r);
+      if (r.date >= startKey && r.date <= endKey) {
+        monthCount++;
+        monthSum += Number(r.price) || 0;
+      }
+    }
+
+    const gridStart = getWeekStart(first);
+    const totalDays = Math.ceil(((last - gridStart) / 86400000 + 1) / 7) * 7;
+    const cellCount = Math.max(35, totalDays);
+
+    const weekdays = state.weekStartsOnMonday
+      ? [{ l: '月', c: '' }, { l: '火', c: '' }, { l: '水', c: '' }, { l: '木', c: '' }, { l: '金', c: '' }, { l: '土', c: 'sat' }, { l: '日', c: 'sun' }]
+      : [{ l: '日', c: 'sun' }, { l: '月', c: '' }, { l: '火', c: '' }, { l: '水', c: '' }, { l: '木', c: '' }, { l: '金', c: '' }, { l: '土', c: 'sat' }];
+
+    let cells = '';
+    for (let i = 0; i < cellCount; i++) {
+      const d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
+      const key = formatDateKey(d);
+      const dow = d.getDay();
+      const dowCls = dow === 0 ? 'sun' : (dow === 6 ? 'sat' : '');
+      const items = byDate.get(key) || [];
+      const daySum = items.reduce((s, r) => s + (Number(r.price) || 0), 0);
+      const dotsHtml = items.slice(0, 6).map(r => {
+        const col = (CATEGORIES[r.category] || CATEGORIES.other).color;
+        return `<span class="cal-dot" style="background:${col}"></span>`;
+      }).join('');
+
+      cells += `
+        <div class="cal-day ${d.getMonth() !== m ? 'other' : ''} ${key === todayKey ? 'today' : ''} ${key === state.selectedDate ? 'selected' : ''}" data-select-date="${key}">
+          <span class="cal-day-num num ${dowCls}">${d.getDate()}</span>
+          <div class="cal-dots">${dotsHtml}</div>
+          ${daySum > 0 ? `<span class="cal-day-price num">${formatYen(daySum)}</span>` : ''}
+        </div>
+      `;
+    }
+
+    const selectedItems = byDate.get(state.selectedDate) || [];
+    const selectedSum = selectedItems.reduce((s, r) => s + (Number(r.price) || 0), 0);
+
+    const listHtml = selectedItems.length
+      ? `<div class="meal-list">${selectedItems.map(r => buildMealCardHtml(r, false)).join('')}</div>`
+      : `<div class="empty-card">
+           <div>この日の記録はまだありません。</div>
+           <button type="button" class="btn-soft" data-add-date="${state.selectedDate}">＋ ${escapeHtml(formatShortDateJP(state.selectedDate))} に記録する</button>
+           ${state.records.length === 0 ? `<div style="margin-top:10px;"><button type="button" id="btnEmptySample" style="font-size:13px;">サンプルデータで試す</button></div>` : ''}
+         </div>`;
+
+    el.main.innerHTML = `
+      <div class="period-bar">
+        <div class="period-controls">
+          <button type="button" class="period-btn" id="btnPrevMonth" aria-label="前の月">
+            <svg class="ico" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span class="period-title num">${y}年${m + 1}月</span>
+          <button type="button" class="period-btn" id="btnNextMonth" aria-label="次の月">
+            <svg class="ico" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="period-summary">
+          <strong class="num">${monthCount}</strong>件 / <strong class="num">${formatYen(monthSum)}</strong>
+        </div>
+      </div>
+
+      ${buildCatPillsHtml()}
+
+      <div class="cal-card">
+        <div class="cal-weekdays">
+          ${weekdays.map(w => `<div class="cal-wd ${w.c}">${w.l}</div>`).join('')}
+        </div>
+        <div class="cal-grid">${cells}</div>
+      </div>
+
+      <div class="day-section-head">
+        <div>
+          <span class="day-section-title num">${escapeHtml(formatShortDateJP(state.selectedDate))}</span>
+          <span class="day-section-sub num">${selectedItems.length}件${selectedSum > 0 ? '・' + formatYen(selectedSum) : ''}</span>
+        </div>
+        <button type="button" class="btn-soft" style="padding:6px 11px;font-size:13px;" data-add-date="${state.selectedDate}">＋ 追加</button>
+      </div>
+
+      ${listHtml}
+    `;
+
+    document.getElementById('btnPrevMonth').addEventListener('click', () => {
+      state.cursorDate = new Date(y, m - 1, 1);
+      state.selectedDate = formatDateKey(state.cursorDate);
+      render();
+    });
+    document.getElementById('btnNextMonth').addEventListener('click', () => {
+      state.cursorDate = new Date(y, m + 1, 1);
+      state.selectedDate = formatDateKey(state.cursorDate);
+      render();
+    });
+    el.main.querySelectorAll('[data-select-date]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const key = cell.dataset.selectDate;
+        state.selectedDate = key;
+        const parsed = parseDateKey(key);
+        if (parsed && (parsed.getMonth() !== m || parsed.getFullYear() !== y)) {
+          state.cursorDate = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+        }
+        render();
+      });
+    });
+    const emptySample = document.getElementById('btnEmptySample');
+    if (emptySample) emptySample.addEventListener('click', loadSampleData);
+
+    bindCommonEvents();
+  }
+
+  function renderWeekView() {
+    const start = getWeekStart(state.cursorDate);
+    const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+    const startKey = formatDateKey(start);
+    const endKey = formatDateKey(end);
+
+    const filtered = getFilteredRecords(false);
+    const byDate = new Map();
+    let weekCount = 0;
+    let weekSum = 0;
+    for (const r of filtered) {
+      if (r.date >= startKey && r.date <= endKey) {
+        if (!byDate.has(r.date)) byDate.set(r.date, []);
+        byDate.get(r.date).push(r);
+        weekCount++;
+        weekSum += Number(r.price) || 0;
+      }
+    }
+
+    const titleRange = start.getFullYear() === end.getFullYear()
+      ? `${start.getMonth() + 1}/${start.getDate()}〜${end.getMonth() + 1}/${end.getDate()}`
+      : `${start.getFullYear()}/${start.getMonth() + 1}/${start.getDate()}〜${end.getMonth() + 1}/${end.getDate()}`;
+
+    let stripHtml = '';
+    let groupsHtml = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const key = formatDateKey(d);
+      const dow = d.getDay();
+      const dowCls = dow === 0 ? 'sun' : (dow === 6 ? 'sat' : '');
+      const items = byDate.get(key) || [];
+      const dots = items.slice(0, 4).map(r => `<span class="cal-dot" style="background:${(CATEGORIES[r.category] || CATEGORIES.other).color}"></span>`).join('');
+
+      stripHtml += `
+        <div class="week-pill ${key === todayKey ? 'today' : ''}" data-scroll-day="${key}">
+          <span class="week-pill-dow ${dowCls}">${DOW_JP[dow]}</span>
+          <span class="week-pill-num num">${d.getDate()}</span>
+          <div class="cal-dots">${dots}</div>
+        </div>
+      `;
+
+      const daySum = items.reduce((s, r) => s + (Number(r.price) || 0), 0);
+      groupsHtml += `
+        <section class="week-day-group" id="wday_${key}">
+          <div class="week-day-header ${key === todayKey ? 'today' : ''}">
+            <span class="num">${d.getMonth() + 1}月${d.getDate()}日（${DOW_JP[dow]}）${daySum > 0 ? ' ・ ' + formatYen(daySum) : ''}</span>
+            <button type="button" style="padding:4px 9px;font-size:12px;" data-add-date="${key}">＋ 追加</button>
+          </div>
+          ${items.length
+            ? `<div class="meal-list">${items.map(r => buildMealCardHtml(r, false)).join('')}</div>`
+            : `<div style="font-size:12.5px;color:var(--text-muted);padding:6px 8px;">記録なし</div>`}
+        </section>
+      `;
+    }
+
+    el.main.innerHTML = `
+      <div class="period-bar">
+        <div class="period-controls">
+          <button type="button" class="period-btn" id="btnPrevWeek" aria-label="前の週">
+            <svg class="ico" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span class="period-title num">${titleRange}</span>
+          <button type="button" class="period-btn" id="btnNextWeek" aria-label="次の週">
+            <svg class="ico" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="period-summary">
+          <strong class="num">${weekCount}</strong>件 / <strong class="num">${formatYen(weekSum)}</strong>
+        </div>
+      </div>
+
+      ${buildCatPillsHtml()}
+
+      <div class="week-strip">${stripHtml}</div>
+      ${groupsHtml}
+    `;
+
+    document.getElementById('btnPrevWeek').addEventListener('click', () => {
+      state.cursorDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 7);
+      render();
+    });
+    document.getElementById('btnNextWeek').addEventListener('click', () => {
+      state.cursorDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7);
+      render();
+    });
+    el.main.querySelectorAll('[data-scroll-day]').forEach(p => {
+      p.addEventListener('click', () => {
+        const target = document.getElementById('wday_' + p.dataset.scrollDay);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    bindCommonEvents();
+  }
+
+  function renderListView() {
+    const y = state.cursorDate.getFullYear();
+    const m = state.cursorDate.getMonth();
+    const startKey = formatDateKey(new Date(y, m, 1));
+    const endKey = formatDateKey(new Date(y, m + 1, 0));
+
+    let records = getFilteredRecords(true);
+    if (state.listScope === 'period') {
+      records = records.filter(r => r.date >= startKey && r.date <= endKey);
+    }
+    records.sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+    const count = records.length;
+    const totalPrice = records.reduce((s, r) => s + (Number(r.price) || 0), 0);
+    const pricedCount = records.filter(r => r.price !== null && r.price !== '' && !Number.isNaN(Number(r.price))).length;
+    const avgPrice = pricedCount > 0 ? Math.round(totalPrice / pricedCount) : 0;
+
+    // SVG stacked breakdown bar
+    const cats = Object.keys(CATEGORIES).map(k => {
+      const sub = records.filter(r => r.category === k);
+      const sum = sub.reduce((s, r) => s + (Number(r.price) || 0), 0);
+      return { key: k, ...CATEGORIES[k], count: sub.length, sum };
+    }).filter(x => x.count > 0);
+
+    const basis = totalPrice > 0 ? totalPrice : count;
+    let svgRects = '';
+    let xAcc = 0;
+    if (basis > 0) {
+      for (const c of cats) {
+        const pct = ((totalPrice > 0 ? c.sum : c.count) / basis) * 100;
+        svgRects += `<rect x="${xAcc.toFixed(2)}%" y="0" width="${pct.toFixed(2)}%" height="16" fill="${c.color}"/>`;
+        xAcc += pct;
+      }
+    } else {
+      svgRects = `<rect x="0" y="0" width="100%" height="16" fill="#e5ece5"/>`;
+    }
+
+    const legendHtml = cats.length
+      ? cats.map(c => `
+          <span class="legend-item">
+            <span class="legend-swatch" style="background:${c.color}"></span>
+            ${c.label} <strong class="num">${c.count}</strong>件${c.sum > 0 ? ` (<span class="num">${formatYen(c.sum)}</span>)` : ''}
+          </span>
+        `).join('')
+      : '<span>該当データなし</span>';
+
+    el.main.innerHTML = `
+      <div class="segmented">
+        <button type="button" id="btnScopePeriod" class="${state.listScope === 'period' ? 'active' : ''}">${y}年${m + 1}月のみ</button>
+        <button type="button" id="btnScopeAll" class="${state.listScope === 'all' ? 'active' : ''}">全期間（${state.records.length}件）</button>
+      </div>
+
+      ${state.listScope === 'period' ? `
+        <div class="period-bar" style="margin-bottom:8px;">
+          <div class="period-controls">
+            <button type="button" class="period-btn" id="btnListPrev" aria-label="前の月">
+              <svg class="ico" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="period-title num">${y}年${m + 1}月</span>
+            <button type="button" class="period-btn" id="btnListNext" aria-label="次の月">
+              <svg class="ico" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="search-box">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="listSearchInput" placeholder="メニュー・店名・メモを検索" value="${escapeHtml(state.searchQuery)}">
+        <button type="button" class="search-clear ${state.searchQuery ? 'show' : ''}" id="btnListSearchClear" aria-label="クリア">×</button>
+      </div>
+
+      ${buildCatPillsHtml()}
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">記録件数</div>
+          <div class="kpi-val num">${count.toLocaleString('ja-JP')}件</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">合計金額</div>
+          <div class="kpi-val num">${formatYen(totalPrice)}</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">平均単価</div>
+          <div class="kpi-val num">${formatYen(avgPrice)}</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <svg width="100%" height="16" style="border-radius:8px;overflow:hidden;display:block;">${svgRects}</svg>
+        <div class="chart-legend">${legendHtml}</div>
+      </div>
+
+      ${records.length
+        ? `<div class="meal-list">${records.map(r => buildMealCardHtml(r, true)).join('')}</div>`
+        : `<div class="empty-card">条件に一致する記録がありません。</div>`}
+    `;
+
+    document.getElementById('btnScopePeriod').addEventListener('click', () => { state.listScope = 'period'; render(); });
+    document.getElementById('btnScopeAll').addEventListener('click', () => { state.listScope = 'all'; render(); });
+    const prevBtn = document.getElementById('btnListPrev');
+    const nextBtn = document.getElementById('btnListNext');
+    if (prevBtn) prevBtn.addEventListener('click', () => { state.cursorDate = new Date(y, m - 1, 1); render(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { state.cursorDate = new Date(y, m + 1, 1); render(); });
+
+    const sInput = document.getElementById('listSearchInput');
+    const sClear = document.getElementById('btnListSearchClear');
+    sInput.addEventListener('input', () => {
+      state.searchQuery = sInput.value;
+      sClear.classList.toggle('show', state.searchQuery.length > 0);
+      renderListView();
+      const refreshed = document.getElementById('listSearchInput');
+      if (refreshed) {
+        refreshed.focus();
+        refreshed.setSelectionRange(refreshed.value.length, refreshed.value.length);
+      }
+    });
+    sClear.addEventListener('click', () => {
+      state.searchQuery = '';
+      render();
+    });
+
+    bindCommonEvents();
+  }
+
+  function renderDataView() {
+    const jsonBytes = new Blob([buildJsonPayload()]).size;
+    const sizeText = jsonBytes >= 1024 * 1024
+      ? (jsonBytes / (1024 * 1024)).toFixed(2) + ' MB'
+      : Math.max(1, Math.round(jsonBytes / 1024)).toLocaleString('ja-JP') + ' KB';
+    const photoCount = state.records.filter(r => r.imageData).length;
+
+    el.main.innerHTML = `
+      <section class="data-card">
+        <h2>
+          保存ステータス
+          <span class="storage-badge ${storageAvailable ? '' : 'warn'}">
+            ${storageAvailable ? '端末内へ自動保存中' : 'メモリ上のみ（一時動作）'}
+          </span>
+        </h2>
+        <p>${storageAvailable
+          ? '入力した記録はこのiPhoneのブラウザ内（IndexedDB）へ自動保存されます。サーバー送信や外部通信は一切行いません。'
+          : 'プライベートブラウズ等の制限により自動保存が無効です。閉じる前にJSON書き出しで保存してください。'}</p>
+        <div class="stat-row"><span>登録件数</span><strong class="num">${state.records.length.toLocaleString('ja-JP')} 件</strong></div>
+        <div class="stat-row"><span>写真付き記録</span><strong class="num">${photoCount.toLocaleString('ja-JP')} 件</strong></div>
+        <div class="stat-row"><span>データ推定サイズ</span><strong class="num">${sizeText}</strong></div>
+        <div class="stat-row">
+          <span>カレンダーの開始曜日</span>
+          <button type="button" id="btnToggleWeekStart" style="padding:4px 10px;font-size:13px;">${state.weekStartsOnMonday ? '月曜始まり' : '日曜始まり'}</button>
+        </div>
+      </section>
+
+      <section class="data-card">
+        <h2>JSONバックアップ・読み込み</h2>
+        <p>PC版の「うまそうカレンダー」と同じJSON形式で書き出し・読み込みができます。</p>
+        <div class="btn-stack">
+          <button type="button" class="btn-primary btn-block" id="btnExportJson">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            JSONファイルとして保存 / 共有
+          </button>
+          <button type="button" class="btn-soft btn-block" id="btnImportJson">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            JSONファイルを読み込む
+          </button>
+          <button type="button" class="btn-block" id="btnSampleData">
+            <svg class="ico" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            サンプルデータを読み込む
+          </button>
+        </div>
+      </section>
+
+      <section class="data-card">
+        <h2 style="color:var(--danger);">データの完全消去</h2>
+        <p>このブラウザ内に保存されている食事記録と写真をすべて削除し、初期状態へ戻します。</p>
+        <button type="button" class="btn-danger btn-block" id="btnClearAllData">全データを完全に消去する</button>
+      </section>
+    `;
+
+    document.getElementById('btnToggleWeekStart').addEventListener('click', () => {
+      state.weekStartsOnMonday = !state.weekStartsOnMonday;
+      render();
+      showToast(state.weekStartsOnMonday ? '月曜始まりに変更しました。' : '日曜始まりに変更しました。');
+    });
+    document.getElementById('btnExportJson').addEventListener('click', exportJsonFile);
+    document.getElementById('btnImportJson').addEventListener('click', () => el.jsonFileInput.click());
+    document.getElementById('btnSampleData').addEventListener('click', loadSampleData);
+    document.getElementById('btnClearAllData').addEventListener('click', async () => {
+      if (!confirm('保存されているすべての食事記録と写真を完全に消去します。よろしいですか？')) return;
+      state.records = [];
+      await dbClearAll();
+      render();
+      showToast('すべてのデータを消去しました。');
+    });
+  }
+
+  /* =========================================================
+     Tap Detail Sheet (Zoomed Photo + Web Search Links)
+  ========================================================= */
+  function openDetailSheet(recordId) {
+    const rec = state.records.find(r => r.id === recordId);
+    if (!rec) return;
+    state.detailRecordId = recordId;
+
+    const cat = CATEGORIES[rec.category] || CATEGORIES.other;
+    const priceStr = formatYen(rec.price);
+
+    el.detailImgWrap.innerHTML = `
+      ${rec.imageData
+        ? `<img src="${rec.imageData}" alt="${escapeHtml(rec.foodName)}">`
+        : `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text-muted);">
+             <svg class="ico" style="width:42px;height:42px;opacity:0.4;" viewBox="0 0 24 24"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M16 3v18M16 3c3 0 4 2.5 4 6s-1 5-4 5"/></svg>
+             <span style="font-size:13px;">写真未登録</span>
+           </div>`}
+      <span class="cat-tag ${cat.cls} detail-cat-float">${cat.label}</span>
+      ${priceStr ? `<span class="detail-price-float num">${escapeHtml(priceStr)}</span>` : ''}
+      <button type="button" class="detail-close-float" id="btnDetailClose" aria-label="閉じる">✕</button>
+    `;
+
+    document.getElementById('btnDetailClose').addEventListener('click', closeDetailSheet);
+
+    el.detailDate.textContent = formatDateJP(rec.date);
+    el.detailStars.textContent = formatStars(rec.rating);
+    el.detailFood.textContent = rec.foodName;
+
+    if (rec.shopName) {
+      el.detailShopRow.style.display = 'flex';
+      el.detailShop.textContent = rec.shopName;
+    } else {
+      el.detailShopRow.style.display = 'none';
+    }
+
+    if (rec.memo) {
+      el.detailMemo.style.display = 'block';
+      el.detailMemo.textContent = rec.memo;
+    } else {
+      el.detailMemo.style.display = 'none';
+    }
+
+    const links = [];
+    const safeUrl = sanitizeUrl(rec.url);
+    if (safeUrl) {
+      links.push(`
+        <a class="detail-link-btn" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          登録サイトを開く
+        </a>
+      `);
+    }
+    const qTerms = [rec.shopName, rec.foodName].filter(Boolean).join(' ').trim();
+    if (qTerms) {
+      links.push(`
+        <a class="detail-link-btn secondary" href="https://www.google.com/search?q=${encodeURIComponent(qTerms)}" target="_blank" rel="noopener noreferrer">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Googleで検索
+        </a>
+      `);
+    }
+    const mTerms = (rec.shopName || rec.foodName || '').trim();
+    if (mTerms) {
+      links.push(`
+        <a class="detail-link-btn secondary" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mTerms)}" target="_blank" rel="noopener noreferrer">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          マップで探す
+        </a>
+      `);
+    }
+    el.detailLinks.innerHTML = links.join('');
+
+    el.detailBackdrop.classList.add('open');
+    el.detailBackdrop.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeDetailSheet() {
+    el.detailBackdrop.classList.remove('open');
+    el.detailBackdrop.setAttribute('aria-hidden', 'true');
+    state.detailRecordId = null;
+  }
+
+  el.detailBackdrop.addEventListener('click', e => {
+    if (e.target === el.detailBackdrop) closeDetailSheet();
+  });
+  el.btnDetailEdit.addEventListener('click', () => {
+    const id = state.detailRecordId;
+    closeDetailSheet();
+    if (id) openRecordModal(id);
+  });
+  el.btnDetailDup.addEventListener('click', () => {
+    const id = state.detailRecordId;
+    closeDetailSheet();
+    if (id) openDuplicateModal(id);
+  });
+
+  /* =========================================================
+     Record Create / Edit Modal
+  ========================================================= */
+  function syncShopPreset(val) {
+    const trimmed = String(val ?? '').trim();
+    el.recShopPreset.value = SHOP_PRESETS.includes(trimmed) ? trimmed : '';
+  }
+
+  function setModalRating(val) {
+    const num = Number(val) || 0;
+    el.recRating.value = num ? String(num) : '';
+    el.starPicker.querySelectorAll('.star-btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.val) <= num);
+    });
+  }
+
+  function setModalPhoto(dataUrl) {
+    state.modalImageData = sanitizeImageData(dataUrl);
+    if (state.modalImageData) {
+      const kb = Math.round((state.modalImageData.length * 3) / 4 / 1024);
+      el.photoPreview.innerHTML = `<img src="${state.modalImageData}" alt="プレビュー">`;
+      el.photoSizeInfo.textContent = `セット済み（約 ${kb.toLocaleString('ja-JP')} KB）`;
+      el.btnRemovePhoto.style.display = 'inline-flex';
+    } else {
+      el.photoPreview.textContent = '写真なし';
+      el.photoSizeInfo.textContent = '長辺640pxへ自動圧縮して保存します。';
+      el.btnRemovePhoto.style.display = 'none';
+    }
+  }
+
+  function openRecordModal(recordId = null, presetDate = null) {
+    const rec = recordId ? state.records.find(r => r.id === recordId) : null;
+    if (rec) {
+      el.modalTitle.textContent = '食事の記録を編集';
+      el.recId.value = rec.id;
+      el.recDate.value = rec.date || todayKey;
+      el.recCategory.value = CATEGORIES[rec.category] ? rec.category : 'lunch';
+      el.recFoodName.value = rec.foodName || '';
+      el.recShopName.value = rec.shopName || '';
+      syncShopPreset(el.recShopName.value);
+      el.recPrice.value = rec.price !== null && rec.price !== undefined ? String(rec.price) : '';
+      el.recUrl.value = rec.url || '';
+      el.recMemo.value = rec.memo || '';
+      setModalRating(rec.rating || 0);
+      setModalPhoto(rec.imageData || '');
+      el.editExtraRow.style.display = 'flex';
+    } else {
+      el.modalTitle.textContent = '食事を記録';
+      el.recId.value = '';
+      el.recDate.value = presetDate || state.selectedDate || todayKey;
+      el.recCategory.value = 'lunch';
+      el.recFoodName.value = '';
+      el.recShopName.value = '';
+      syncShopPreset('');
+      el.recPrice.value = '';
+      el.recUrl.value = '';
+      el.recMemo.value = '';
+      setModalRating(0);
+      setModalPhoto('');
+      el.editExtraRow.style.display = 'none';
+    }
+    el.modal.classList.add('open');
+  }
+
+  function openDuplicateModal(recordId) {
+    const rec = state.records.find(r => r.id === recordId);
+    if (!rec) return;
+    openRecordModal(null, todayKey);
+    el.modalTitle.textContent = '別日に複製して追加';
+    el.recCategory.value = CATEGORIES[rec.category] ? rec.category : 'lunch';
+    el.recFoodName.value = rec.foodName || '';
+    el.recShopName.value = rec.shopName || '';
+    syncShopPreset(el.recShopName.value);
+    el.recPrice.value = rec.price !== null && rec.price !== undefined ? String(rec.price) : '';
+    el.recUrl.value = rec.url || '';
+    el.recMemo.value = rec.memo || '';
+    setModalRating(rec.rating || 0);
+    setModalPhoto(rec.imageData || '');
+  }
+
+  function closeRecordModal() {
+    el.modal.classList.remove('open');
+  }
+
+  el.form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const dateVal = el.recDate.value.trim();
+    const foodVal = el.recFoodName.value.trim();
+    if (!dateVal) { showToast('日付を入力してください。', 'error'); return; }
+    if (!foodVal) { showToast('食べたものを入力してください。', 'error'); return; }
+
+    const rawUrl = el.recUrl.value.trim();
+    if (rawUrl && !sanitizeUrl(rawUrl)) {
+      showToast('URLは https:// または http:// から入力してください。', 'error');
+      return;
+    }
+
+    const priceRaw = el.recPrice.value.trim();
+    const priceNum = priceRaw === '' ? null : Math.max(0, Math.round(Number(priceRaw)));
+    const ratingVal = el.recRating.value ? Number(el.recRating.value) : null;
+    const now = nowIsoLocal();
+    const existingId = el.recId.value;
+
+    if (existingId) {
+      const idx = state.records.findIndex(r => r.id === existingId);
+      if (idx >= 0) {
+        state.records[idx] = {
+          ...state.records[idx],
+          date: dateVal,
+          category: el.recCategory.value,
+          foodName: foodVal,
+          shopName: el.recShopName.value.trim(),
+          price: Number.isNaN(priceNum) ? null : priceNum,
+          rating: ratingVal,
+          url: sanitizeUrl(rawUrl),
+          memo: el.recMemo.value.trim(),
+          imageData: state.modalImageData,
+          updatedAt: now
+        };
+      }
+      showToast('記録を更新しました。', 'success');
+    } else {
+      state.records.push({
+        id: generateId(),
+        date: dateVal,
+        category: el.recCategory.value,
+        foodName: foodVal,
+        shopName: el.recShopName.value.trim(),
+        price: Number.isNaN(priceNum) ? null : priceNum,
+        rating: ratingVal,
+        url: sanitizeUrl(rawUrl),
+        memo: el.recMemo.value.trim(),
+        imageData: state.modalImageData,
+        createdAt: now,
+        updatedAt: now
+      });
+      showToast('記録を保存しました。', 'success');
+    }
+
+    state.selectedDate = dateVal;
+    const d = parseDateKey(dateVal);
+    if (d) state.cursorDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    await persistRecords();
+    closeRecordModal();
+    render();
+  });
+
+  el.btnDeleteRecord.addEventListener('click', async () => {
+    const id = el.recId.value;
+    if (!id || !confirm('この記録を削除しますか？')) return;
+    state.records = state.records.filter(r => r.id !== id);
+    await persistRecords();
+    closeRecordModal();
+    render();
+    showToast('記録を削除しました。');
+  });
+
+  el.btnDuplicateRecord.addEventListener('click', () => {
+    const id = el.recId.value;
+    if (id) openDuplicateModal(id);
+  });
+
+  el.starPicker.querySelectorAll('.star-btn').forEach(btn => {
+    btn.addEventListener('click', () => setModalRating(btn.dataset.val));
+  });
+  el.recShopPreset.addEventListener('change', () => {
+    const val = el.recShopPreset.value;
+    if (val) {
+      el.recShopName.value = val;
+    } else if (SHOP_PRESETS.includes(el.recShopName.value.trim())) {
+      el.recShopName.value = '';
+    }
+  });
+  el.recShopName.addEventListener('input', () => syncShopPreset(el.recShopName.value));
+
+  document.getElementById('btnStarClear').addEventListener('click', () => setModalRating(0));
+  document.getElementById('btnModalClose').addEventListener('click', closeRecordModal);
+  document.getElementById('btnModalCancel').addEventListener('click', closeRecordModal);
+  el.modal.addEventListener('click', e => { if (e.target === el.modal) closeRecordModal(); });
+
+  /* =========================================================
+     Image Compression (Canvas 640px JPEG)
+  ========================================================= */
+  function compressImageFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      showToast('画像ファイルを選択してください。', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxSide = 640;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxSide || h > maxSide) {
+          if (w >= h) { h = Math.round((h * maxSide) / w); w = maxSide; }
+          else { w = Math.round((w * maxSide) / h); h = maxSide; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        setModalPhoto(canvas.toDataURL('image/jpeg', 0.78));
+        showToast('写真をセットしました。', 'success');
+      };
+      img.onerror = () => showToast('画像の読み込みに失敗しました。', 'error');
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  el.btnSelectPhoto.addEventListener('click', () => el.photoFileInput.click());
+  el.photoFileInput.addEventListener('change', e => {
+    if (e.target.files && e.target.files[0]) compressImageFile(e.target.files[0]);
+    e.target.value = '';
+  });
+  el.btnRemovePhoto.addEventListener('click', () => setModalPhoto(''));
+
+  /* =========================================================
+     JSON Export / Import (iOS Share Sheet + Download Fallback)
+  ========================================================= */
+  function buildJsonPayload() {
+    return JSON.stringify({
+      app: 'うまそうカレンダー',
+      schemaVersion: '1.0',
+      updatedAt: nowIsoLocal(),
+      records: state.records
+    }, null, 2);
+  }
+
+  async function exportJsonFile() {
+    const fileName = 'うまそうファイル.json';
+    const payload = buildJsonPayload();
+    const blob = new Blob([payload], { type: 'application/json;charset=utf-8' });
+
+    if (navigator.canShare && typeof File !== 'undefined') {
+      try {
+        const file = new File([blob], fileName, { type: 'application/json' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'うまそうカレンダー バックアップ' });
+          showToast('JSONファイルを共有しました。', 'success');
+          return;
+        }
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+    showToast(`${fileName} を保存しました。`, 'success');
+  }
+
+  el.jsonFileInput.addEventListener('change', async e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(await file.text());
+    } catch {
+      showToast('JSONの形式が正しくありません。', 'error');
+      return;
+    }
+
+    const list = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.records) ? parsed.records : null);
+    if (!list) {
+      showToast('食事記録データ（records配列）が見つかりませんでした。', 'error');
+      return;
+    }
+
+    if (state.records.length > 0 && !confirm(`現在の${state.records.length}件を置き換えて、${file.name} を読み込みますか？`)) {
+      return;
+    }
+
+    const normalized = [];
+    for (const item of list) {
+      if (!item || typeof item !== 'object') continue;
+      if (!parseDateKey(item.date) || !String(item.foodName || '').trim()) continue;
+      const pNum = item.price === null || item.price === undefined || item.price === '' ? null : Number(item.price);
+      normalized.push({
+        id: String(item.id || generateId()),
+        date: String(item.date),
+        category: CATEGORIES[item.category] ? item.category : 'other',
+        foodName: String(item.foodName).trim(),
+        shopName: String(item.shopName || '').trim(),
+        price: pNum !== null && !Number.isNaN(pNum) ? Math.round(pNum) : null,
+        rating: item.rating ? Math.min(5, Math.max(1, Math.round(Number(item.rating)))) : null,
+        memo: String(item.memo || '').trim(),
+        url: sanitizeUrl(item.url),
+        imageData: sanitizeImageData(item.imageData),
+        createdAt: String(item.createdAt || nowIsoLocal()),
+        updatedAt: String(item.updatedAt || nowIsoLocal())
+      });
+    }
+
+    state.records = normalized;
+    if (normalized.length > 0) {
+      const latest = normalized.map(r => r.date).sort().pop();
+      const d = parseDateKey(latest);
+      if (d) {
+        state.cursorDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        state.selectedDate = latest;
+      }
+    }
+    await persistRecords();
+    state.tab = 'month';
+    render();
+    showToast(`${normalized.length.toLocaleString('ja-JP')}件を読み込みました。`, 'success');
+  });
+
+  /* =========================================================
+     Offline Sample Data (Pure Canvas Art)
+  ========================================================= */
+  function makeSampleImg(title, bg1, bg2, plate, mainCol, garnish) {
+    const c = document.createElement('canvas');
+    c.width = 480;
+    c.height = 300;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 480, 300);
+    g.addColorStop(0, bg1); g.addColorStop(1, bg2);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 480, 300);
+    ctx.fillStyle = 'rgba(0,0,0,0.16)';
+    ctx.beginPath(); ctx.ellipse(246, 152, 120, 88, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = plate;
+    ctx.beginPath(); ctx.ellipse(240, 144, 118, 86, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = mainCol;
+    ctx.beginPath(); ctx.ellipse(240, 144, 84, 58, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = garnish;
+    ctx.beginPath(); ctx.arc(212, 132, 20, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(266, 154, 17, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(20,30,22,0.58)';
+    ctx.fillRect(0, 252, 480, 48);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 20px "BIZ UDPGothic", -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(title + '（サンプル）', 240, 283);
+    return c.toDataURL('image/jpeg', 0.8);
+  }
+
+  async function loadSampleData() {
+    if (state.records.length > 0 && !confirm('現在の記録をサンプルデータで置き換えますか？')) return;
+    const shift = days => formatDateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() + days));
+    const now = nowIsoLocal();
+
+    state.records = [
+      {
+        id: generateId(), date: shift(0), category: 'lunch',
+        foodName: '特製醤油ラーメン（味玉トッピング）', shopName: '麺処 みなと',
+        price: 1100, rating: 5, memo: '澄んだスープが絶品。11:40入店で並ばず座れた。',
+        url: 'https://example.com/ramen-minato',
+        imageData: makeSampleImg('特製醤油ラーメン', '#d8b48c', '#a97b50', '#fffaf0', '#c87d2e', '#4caf50'),
+        createdAt: now, updatedAt: now
+      },
+      {
+        id: generateId(), date: shift(0), category: 'snack',
+        foodName: '焦がしバターのフィナンシェ＆ラテ', shopName: 'ベイクカフェ 緑道',
+        price: 680, rating: 4, memo: '外はサクサク、香りが最高。',
+        url: '',
+        imageData: makeSampleImg('フィナンシェ＆ラテ', '#f3e2c7', '#d7b286', '#ffffff', '#c68b44', '#6d4c41'),
+        createdAt: now, updatedAt: now
+      },
+      {
+        id: generateId(), date: shift(-1), category: 'lunch',
+        foodName: 'サバの塩焼き定食', shopName: '和食処 さくら亭',
+        price: 950, rating: 4, memo: '脂が乗っていて大根おろしと相性抜群。',
+        url: '',
+        imageData: makeSampleImg('サバの塩焼き定食', '#c9d6c5', '#8fa88c', '#f5f5f5', '#7f8c8d', '#8bc34a'),
+        createdAt: now, updatedAt: now
+      },
+      {
+        id: generateId(), date: shift(-2), category: 'lunch',
+        foodName: 'ロースカツカレー', shopName: 'カレーハウス太陽',
+        price: 1050, rating: 5, memo: '揚げたてサクサク。程よいスパイス感。',
+        url: '',
+        imageData: makeSampleImg('ロースカツカレー', '#e6c59c', '#c78c52', '#fffdf8', '#8d491b', '#d9534f'),
+        createdAt: now, updatedAt: now
+      },
+      {
+        id: generateId(), date: shift(-2), category: 'snack',
+        foodName: '宇治抹茶シュークリーム', shopName: 'コンビニスイーツ',
+        price: 240, rating: 4, memo: 'ほろ苦クリームがたっぷり。',
+        url: '',
+        imageData: makeSampleImg('宇治抹茶シュー', '#dcedc8', '#9ccc65', '#ffffff', '#558b2f', '#d4a359'),
+        createdAt: now, updatedAt: now
+      }
+    ];
+
+    state.cursorDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    state.selectedDate = todayKey;
+    state.tab = 'month';
+    await persistRecords();
+    render();
+    showToast('サンプルを読み込みました。カードをタップして拡大表示を試せます。', 'success');
+  }
+
+  /* =========================================================
+     Global Navigation & Init
+  ========================================================= */
+  document.getElementById('btnHeaderToday').addEventListener('click', () => {
+    state.cursorDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    state.selectedDate = todayKey;
+    if (state.tab === 'data') state.tab = 'month';
+    render();
+  });
+
+  document.getElementById('btnHeaderAdd').addEventListener('click', () => {
+    openRecordModal(null, state.selectedDate || todayKey);
+  });
+
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.tab = btn.dataset.tab;
+      render();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+  });
+
+  async function init() {
+    dbInstance = await openDb();
+    if (storageAvailable) {
+      const saved = await dbGet(RECORDS_KEY);
+      if (Array.isArray(saved)) state.records = saved;
+    }
+    render();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
