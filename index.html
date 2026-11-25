@@ -178,6 +178,39 @@
     font-size: 13.5px;
     border-radius: 999px;
   }
+  .header-help-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-sub);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    touch-action: manipulation;
+    transition: background-color 0.14s, transform 0.08s;
+  }
+  .header-help-btn:active { transform: scale(0.95); background: var(--accent-soft); color: var(--accent-dark); }
+  a.btn-link {
+    text-decoration: none;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    touch-action: manipulation;
+    transition: background-color 0.14s, transform 0.08s;
+  }
+  a.btn-link:active { transform: scale(0.97); }
+  a.btn-link.btn-soft {
+    background: var(--accent-soft);
+    border-color: var(--accent-border);
+    color: #215b23;
+    font-weight: 700;
+  }
 
   /* Main Scroll Area */
   .main-container {
@@ -1028,6 +1061,9 @@
       <span class="brand-title">うまそうカレンダー</span>
     </div>
     <div class="header-actions">
+      <a class="header-help-btn" href="./guide.html" target="_blank" rel="noopener noreferrer" aria-label="使い方説明書を開く" title="使い方（説明書）">
+        <svg class="ico" style="width:17px;height:17px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </a>
       <button type="button" class="header-today-btn" id="btnHeaderToday">今日</button>
       <button type="button" class="btn-primary header-add-btn" id="btnHeaderAdd">
         <svg class="ico" style="width:15px;height:15px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1902,6 +1938,15 @@
           <span>カレンダーの開始曜日</span>
           <button type="button" id="btnToggleWeekStart" style="padding:4px 10px;font-size:13px;">${state.weekStartsOnMonday ? '月曜始まり' : '日曜始まり'}</button>
         </div>
+      </section>
+
+      <section class="data-card">
+        <h2>使い方ガイド（説明書）</h2>
+        <p>記録のしかたやホーム画面への追加方法、安全に使うためのポイントをまとめた説明書を開きます。</p>
+        <a class="btn-link btn-soft btn-block" href="./guide.html" target="_blank" rel="noopener noreferrer">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          かんたん説明書（guide.html）を開く
+        </a>
       </section>
 
       <section class="data-card">
